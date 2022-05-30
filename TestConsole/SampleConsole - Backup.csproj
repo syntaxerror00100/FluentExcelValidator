@@ -17,9 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="File\TestFile.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Folder Include="NewFolder\" />
   </ItemGroup>
 
 </Project>
