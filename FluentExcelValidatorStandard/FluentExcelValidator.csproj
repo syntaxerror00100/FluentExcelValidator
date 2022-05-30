@@ -3,6 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
+    <Description>Clean and easy way to validate excel data using fluentvalidation</Description>
+    <RepositoryUrl>https://github.com/syntaxerror00100/FluentExcelValidator</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Excel validator, Excel</PackageTags>
+    <PackageReleaseNotes>First release</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

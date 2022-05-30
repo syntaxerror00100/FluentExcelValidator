@@ -5,7 +5,7 @@ VisualStudioVersion = 17.2.32516.85
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentExcelValidator", "FluentExcelValidatorStandard\FluentExcelValidator.csproj", "{8BBE28B2-DA6D-4FCB-A7E7-444C87D49633}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestConsole", "TestConsole\TestConsole.csproj", "{A3F76D71-7F85-4867-B0E3-254C7C3D792F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleConsole", "TestConsole\SampleConsole.csproj", "{A3F76D71-7F85-4867-B0E3-254C7C3D792F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
