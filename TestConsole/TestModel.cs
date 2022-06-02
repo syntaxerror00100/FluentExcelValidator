@@ -14,6 +14,8 @@ namespace TestConsole
 
         [ExcelColumnName("Last Name")]
         public string      LastName         { get; set; }
+        
+        public string Email { get; set; }
 
     }
 }

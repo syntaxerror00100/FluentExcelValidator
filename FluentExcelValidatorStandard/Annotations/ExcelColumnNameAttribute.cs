@@ -11,13 +11,12 @@ namespace FluentExcelValidatorStandard.Annotations
     /// <seealso cref="System.ComponentModel.DisplayNameAttribute" />
     public sealed class ExcelColumnNameAttribute : DisplayNameAttribute
     {
-        private readonly string _excelColumnName;
+        public string ExcelColumnName { get; }
+
         public ExcelColumnNameAttribute(string excelColumnName) : base(excelColumnName)
         {
-            _excelColumnName = excelColumnName;
+            ExcelColumnName = excelColumnName;
         }
 
-        public string ExcelColumnName => _excelColumnName;
-        
     }
 }

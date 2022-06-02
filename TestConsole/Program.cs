@@ -10,7 +10,7 @@ var settings = new ValidatorSettings()
 };
 
 
-var smartValidator = new FluentExcelValidator();
+var smartValidator = new FluentExcelValidator.FluentExcelValidator();
 
 var validator = new TestModelValidator();
 

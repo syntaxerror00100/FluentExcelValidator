@@ -1,30 +1,24 @@
-﻿using FastMember;
-using FluentExcelValidatorStandard.Annotations;
-using FluentExcelValidatorStandard.Models;
-using FluentValidation;
-using OfficeOpenXml;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using FastMember;
+using FluentExcelValidatorStandard;
+using FluentExcelValidatorStandard.Annotations;
+using FluentExcelValidatorStandard.Models;
+using FluentValidation;
+using NPOI.SS.UserModel;
 
-namespace FluentExcelValidatorStandard
+namespace FluentExcelValidator
 {
     public class FluentExcelValidator
     {
-        public FluentExcelValidator()
-        {
-            DipendencyInjection.ResolveDependencies();
-        }
-
-        private ValidatorSettings ValidatorSettings { get; set; }
-
-
+        private ValidatorSettings _validatorSettings;
         public async Task<ExcelValidationResult<T>> ValidateAsync<T>(IValidator<T> validator, ValidatorSettings settings) where T : class
         {
-            ValidatorSettings = settings;
+            _validatorSettings = settings;
             var result = new ExcelValidationResult<T>
             {
                 IsValid = true,
@@ -65,35 +59,59 @@ namespace FluentExcelValidatorStandard
             var mappedResultList = new List<MappedDataModel<T>>();
             var objectColumns = GetColumnNames<T>();
 
-            var package = new ExcelPackage(new MemoryStream(ValidatorSettings.ExcelFIleBytes));
+            IWorkbook workbook = WorkbookFactory.Create(new MemoryStream(_validatorSettings.ExcelFIleBytes));
+            ISheet workSheet = workbook.GetSheetAt(0);
+            var lastRowIndex = workSheet.LastRowNum;
 
-            var workSheet = package.Workbook.Worksheets[0];
-            var start = workSheet.Dimension.Start;
-            var end = workSheet.Dimension.End;
-            for (int row = ValidatorSettings.DataRowNumber; row <= end.Row; row++)
+            var headerRow = workSheet.GetRow(_validatorSettings.ColumnHeaderRowNumber - 1);
+
+            if (headerRow == null)
+                throw new Exception("Header row is empty");
+
+            var headerRowCells = headerRow.Cells;
+
+            for (int rowIndex = _validatorSettings.DataRowNumber - 1; rowIndex <= lastRowIndex; rowIndex++)
             {
+                var excelRow = workSheet.GetRow(rowIndex);
+
+                if (excelRow == null)
+                    continue;
+
                 var mappedResult = new MappedDataModel<T>()
                 {
-                    Row = row
+                    Row = rowIndex + 1
                 };
 
                 var objOfT = Activator.CreateInstance<T>();
                 var wrappedOfObjT = ObjectAccessor.Create(objOfT);
 
-                for (int col = start.Column; col <= end.Column; col++)
+                for (int colIndex = 0; colIndex < headerRow.Cells.Count; colIndex++)
                 {
-                    var excelHeaderValue = workSheet.Cells[ValidatorSettings.ColumnHeaderRowNumber, col].Text?.Trim();
+                    var excelHeaderValue = headerRowCells[colIndex]?.StringCellValue ?? "";
                     var objectColumn = objectColumns.FirstOrDefault(x =>
                         x.CustomColumnName.Equals(excelHeaderValue, StringComparison.CurrentCultureIgnoreCase));
 
                     if (objectColumn != null)
                     {
-                        var cellValue = workSheet.Cells[row, col].Text?.Trim();
+                        var excelRowCell = excelRow.GetCell(colIndex);
+                        var cellValue = excelRowCell?.StringCellValue; //  workSheet.Cells[rowIndex, col].Text?.Trim();
                         wrappedOfObjT[objectColumn.PropertyName] = cellValue;
                     }
-
                 }
 
+                //foreach (var excelRowCell in excelRow.Cells)
+                //{
+                //    var excelHeaderValue = headerRowCells[excelRowCell.ColumnIndex]?.StringCellValue ?? "";
+                //    var objectColumn = objectColumns.FirstOrDefault(x =>
+                //        x.CustomColumnName.Equals(excelHeaderValue, StringComparison.CurrentCultureIgnoreCase));
+
+                //    if (objectColumn != null)
+                //    {
+                //        var cellValue = excelRowCell?.StringCellValue; //  workSheet.Cells[rowIndex, col].Text?.Trim();
+                //        wrappedOfObjT[objectColumn.PropertyName] = cellValue;
+                //    }
+                //}
+                
                 mappedResult.Data = objOfT;
                 mappedResultList.Add(mappedResult);
             }
