@@ -1,6 +1,8 @@
 # FluentExcelValidator
 Clean and easy way to validate excel data using fluentvalidation
 
+For validation visit fluentvalidation: https://fluentvalidation.net/
+
 # Install
 Install-Package FluentExcelValidator
 
