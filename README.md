@@ -20,4 +20,4 @@ var validator = new TestModelValidator();
 var result = await smartValidator.ValidateAsync<TestModel>(validator, settings);
 ```
 # Rule
-All the properties of your excel model must be string
+All the properties of the class model must be string; do all the validation in fluentvalidation
