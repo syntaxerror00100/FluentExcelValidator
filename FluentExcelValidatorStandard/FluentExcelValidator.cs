@@ -49,13 +49,11 @@ namespace FluentExcelValidator
                 result.Exception = e;
             }
             return result;
-
         }
 
 
         private List<MappedDataModel<T>> ReadAndMappData<T>() where T : class
         {
-
             var mappedResultList = new List<MappedDataModel<T>>();
             var objectColumns = GetColumnNames<T>();
 
@@ -94,24 +92,10 @@ namespace FluentExcelValidator
                     if (objectColumn != null)
                     {
                         var excelRowCell = excelRow.GetCell(colIndex);
-                        var cellValue = excelRowCell?.StringCellValue; //  workSheet.Cells[rowIndex, col].Text?.Trim();
+                        var cellValue = excelRowCell?.ToString();
                         wrappedOfObjT[objectColumn.PropertyName] = cellValue;
                     }
                 }
-
-                //foreach (var excelRowCell in excelRow.Cells)
-                //{
-                //    var excelHeaderValue = headerRowCells[excelRowCell.ColumnIndex]?.StringCellValue ?? "";
-                //    var objectColumn = objectColumns.FirstOrDefault(x =>
-                //        x.CustomColumnName.Equals(excelHeaderValue, StringComparison.CurrentCultureIgnoreCase));
-
-                //    if (objectColumn != null)
-                //    {
-                //        var cellValue = excelRowCell?.StringCellValue; //  workSheet.Cells[rowIndex, col].Text?.Trim();
-                //        wrappedOfObjT[objectColumn.PropertyName] = cellValue;
-                //    }
-                //}
-                
                 mappedResult.Data = objOfT;
                 mappedResultList.Add(mappedResult);
             }
@@ -124,8 +108,6 @@ namespace FluentExcelValidator
         private List<ObjectPropertyAndColumnName> GetColumnNames<T>() where T : class
         {
             var result = new List<ObjectPropertyAndColumnName>();
-
-
             var props = GetOrderedProperties(typeof(T)).ToList();
 
             for (int i = 0; i < props.Count(); i++)
@@ -151,14 +133,9 @@ namespace FluentExcelValidator
 
                 }
 
-
-
-
-
                 result.Add(objectPropertyAndColumnName);
 
             }
-
 
             return result;
         }
