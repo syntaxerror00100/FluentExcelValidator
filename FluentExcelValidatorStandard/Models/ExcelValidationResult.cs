@@ -7,7 +7,7 @@ namespace FluentExcelValidatorStandard.Models
 {
     public class ExcelValidationResult<T>
     {
-        public bool IsValid { get; set; }
+        public bool IsValid { get; set; } = true;
         public List<T> MappedData { get; set; } = new List<T>();
         public List<ExcelValidationError> Errors { get; set; } = new List<ExcelValidationError>();
         public Exception Exception { get; set; }

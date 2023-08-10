@@ -9,7 +9,9 @@ using FluentExcelValidatorStandard;
 using FluentExcelValidatorStandard.Annotations;
 using FluentExcelValidatorStandard.Models;
 using FluentValidation;
+using FluentValidation.Results;
 using NPOI.SS.UserModel;
+using Org.BouncyCastle.Asn1.X509;
 
 namespace FluentExcelValidator
 {
@@ -19,14 +21,25 @@ namespace FluentExcelValidator
         public async Task<ExcelValidationResult<T>> ValidateAsync<T>(IValidator<T> validator, ValidatorSettings settings) where T : class
         {
             _validatorSettings = settings;
-            var result = new ExcelValidationResult<T>
-            {
-                IsValid = true,
-            };
+            var result = new ExcelValidationResult<T>();
+
+            var headers = GetColumnNames<T>();
+            IWorkbook workbook = WorkbookFactory.Create(new MemoryStream(_validatorSettings.ExcelFIleBytes));
+            ISheet workSheet = workbook.GetSheetAt(0);
+
 
             try
             {
-                var mappedData = ReadAndMappData<T>();
+                var headerValidationResult = ValidateHeaders(workSheet, headers);
+
+                if (headerValidationResult.ValidationResult.Errors.Any())
+                {
+                    result.Errors.Add(headerValidationResult);
+                    result.IsValid = false;
+                    return result;
+                }
+
+                var mappedData = ReadAndMappData<T>(workSheet, headers);
 
                 foreach (var data in mappedData)
                 {
@@ -51,14 +64,40 @@ namespace FluentExcelValidator
             return result;
         }
 
+        ExcelValidationError? ValidateHeaders(ISheet workSheet, List<ObjectPropertyAndColumnName> headers)
+        {
+            var headerRowCells = workSheet.GetRow(_validatorSettings.ColumnHeaderRowNumber - 1).Cells;
+            ExcelValidationError result = new();
 
-        private List<MappedDataModel<T>> ReadAndMappData<T>() where T : class
+            foreach (var header in headers)
+            {
+                bool headerFound = headerRowCells.Any(x => x.StringCellValue == header.CustomColumnName);
+                if (!headerFound)
+                {
+                    return new ExcelValidationError
+                    {
+                        RowNumber = _validatorSettings.ColumnHeaderRowNumber,
+                        ValidationResult = new ValidationResult()
+                        {
+                            Errors = new List<ValidationFailure>()
+                            {
+                                new()
+                                {
+                                    ErrorMessage = $"Column {header.CustomColumnName} must exist"
+                                }
+                            }
+                        }
+                    };
+                }
+            }
+
+            return null;
+        }
+
+        private List<MappedDataModel<T>> ReadAndMappData<T>(ISheet workSheet, List<ObjectPropertyAndColumnName> headers) where T : class
         {
             var mappedResultList = new List<MappedDataModel<T>>();
-            var objectColumns = GetColumnNames<T>();
-
             IWorkbook workbook = WorkbookFactory.Create(new MemoryStream(_validatorSettings.ExcelFIleBytes));
-            ISheet workSheet = workbook.GetSheetAt(0);
             var lastRowIndex = workSheet.LastRowNum;
 
             var headerRow = workSheet.GetRow(_validatorSettings.ColumnHeaderRowNumber - 1);
@@ -86,7 +125,7 @@ namespace FluentExcelValidator
                 for (int colIndex = 0; colIndex < headerRow.Cells.Count; colIndex++)
                 {
                     var excelHeaderValue = headerRowCells[colIndex]?.StringCellValue ?? "";
-                    var objectColumn = objectColumns.FirstOrDefault(x =>
+                    var objectColumn = headers.FirstOrDefault(x =>
                         x.CustomColumnName.Equals(excelHeaderValue, StringComparison.CurrentCultureIgnoreCase));
 
                     if (objectColumn != null)
