@@ -32,7 +32,7 @@ namespace FluentExcelValidator
             {
                 var headerValidationResult = ValidateHeaders(workSheet, headers);
 
-                if (headerValidationResult.ValidationResult.Errors.Any())
+                if (headerValidationResult != null && headerValidationResult.ValidationResult.Errors.Any())
                 {
                     result.Errors.Add(headerValidationResult);
                     result.IsValid = false;
@@ -67,7 +67,6 @@ namespace FluentExcelValidator
         ExcelValidationError? ValidateHeaders(ISheet workSheet, List<ObjectPropertyAndColumnName> headers)
         {
             var headerRowCells = workSheet.GetRow(_validatorSettings.ColumnHeaderRowNumber - 1).Cells;
-            ExcelValidationError result = new();
 
             foreach (var header in headers)
             {
