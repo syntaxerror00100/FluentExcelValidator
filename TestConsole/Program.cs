@@ -6,7 +6,7 @@ var settings = new ValidatorSettings()
 {
     ColumnHeaderRowNumber = 1,
     DataRowNumber = 3,
-    ExcelFIleBytes = File.ReadAllBytes("File\\TestFile_Invalid_Header.xlsx")
+    ExcelFIleBytes = File.ReadAllBytes("File\\TestFile.xlsx")
 };
 
 
