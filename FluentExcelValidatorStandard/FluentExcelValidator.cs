@@ -70,7 +70,13 @@ namespace FluentExcelValidator
 
             foreach (var header in headers)
             {
-                bool headerFound = headerRowCells.Any(x => x.StringCellValue == header.CustomColumnName);
+                bool headerFound = false;
+                
+                if(_validatorSettings.IgnoreWhiteSpaces)
+                    headerFound =  headerRowCells.Any(x => x.StringCellValue.ToLower().CleanWhiteSpaces() == header.CustomColumnName.ToLower().CleanWhiteSpaces());
+                else
+                    headerFound = headerRowCells.Any(x => x.StringCellValue == header.CustomColumnName);
+
                 if (!headerFound)
                 {
                     return new ExcelValidationError
